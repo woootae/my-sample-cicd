@@ -4,14 +4,14 @@ on:
   push:
     branches: [ "main" ]
 
-# 본인이 설정한 값으로 입력해야 함
+
 env:
   AWS_REGION: ap-northeast-2
   S3_BUCKET_NAME: kimtaewoo-cicd-bucket
   CODE_DEPLOY_APPLICATION_NAME: my-codedeploy-app
   CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: my-codedeploy-deployment-group
 
-permissions:
+permissions:	
   contents: read
 
 jobs:
@@ -19,7 +19,6 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     environment: production
-
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -28,19 +27,19 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
-        java-version: '11'  
+        java-version: '11'
 
-    - name: Build with Maven 
+    - name: Build with Maven
       run: mvn -B package --file ./Sample/pom.xml
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
-      with: 
+      with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRETS_KEY_ID}}
+        aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRETS_KEY_ID }}
         aws-region: ${{ env.AWS_REGION }}
 
-    # https://docs.aws.amazon.com/cli/latest/reference/deploy/push.html
+
     - name: Upload to AWS S3
       run: |
         aws deploy push \
@@ -49,7 +48,7 @@ jobs:
           --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
           --source . 
 
-    # https://docs.aws.amazon.com/cli/latest/reference/deploy/create-deployment.html
+ 
     - name: Deploy to AWS EC2 from S3
       run: |
         aws deploy create-deployment \
